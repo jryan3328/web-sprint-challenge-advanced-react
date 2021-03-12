@@ -1,39 +1,37 @@
-import React, { Component } from "react";
-import axios from "axios";
+import React from "react";
+import { screen, render, waitFor } from "@testing-library/react";
+import userEvent from '@testing-library/user-event';
+import CheckoutForm from "./CheckoutForm";
 
-export default class PlantList extends Component {
-  // add state with a property called "plants" - initialize as an empty array
+// Write up the two tests here and make sure they are testing what the title shows
 
-  // when the component mounts:
-  //   - fetch data from the server endpoint - http://localhost:3333/plants
-  //   - set the returned plants array to this.state.plants
+test("form header renders", () => {
+    render(<CheckoutForm />)
+    const header = screen.getByText(/checkout form/i);
+    expect(header).toBeInTheDocument()
+});
 
-  /*********  DON'T CHANGE ANYTHING IN THE RENDER FUNCTION *********/
-  render() {
-    return (
-      <main className="plant-list">
-        {this.state?.plants?.map((plant) => (
-          <div className="plant-card" key={plant.id} data-testid="plant-card">
-            <img className="plant-image" src={plant.img} alt={plant.name} />
-            <div className="plant-details">
-              <h2 className="plant-name">{plant.name}</h2>
-              <p className="plant-scientific-name">{plant.scientificName}</p>
-              <p>{plant.description}</p>
-              <div className="plant-bottom-row">
-                <p>${plant.price}</p>
-                <p>☀️ {plant.light}</p>
-                <p>💦 {plant.watering}x/month</p>
-              </div>
-              <button
-                className="plant-button"
-                onClick={() => this.props.addToCart(plant)}
-              >
-                Add to cart
-              </button>
-            </div>
-          </div>
-        ))}
-      </main>
-    );
-  }
-}
+test("form shows success message on submit with form details", async () => {
+    render(<CheckoutForm />)
+
+    const firstName = screen.getByLabelText("First Name:");
+    userEvent.type(firstName, "stav");
+
+    const lastName = screen.getByLabelText("Last Name:");
+    userEvent.type(lastName, "corcos");
+
+    const address = screen.getByLabelText("Address:");
+    userEvent.type(address, "123 oopsie");
+
+    const city = screen.getByLabelText("City:");
+    userEvent.type(city, "lawrence");
+
+    const zip = screen.getByLabelText("Zip:");
+    userEvent.type(zip, "11559");
+
+    const button = screen.getByRole("button");
+    userEvent.click(button);
+
+    const success = screen.queryByText(/You have ordered some plants! Woo-hoo!/i);
+    expect(success).toBeInTheDocument();
+});
